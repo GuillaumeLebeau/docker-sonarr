@@ -1,34 +1,38 @@
-FROM debian:wheezy
-MAINTAINER tuxeh <sirtuxeh@gmail.com>
+FROM mono:3.10
 
-# mono 3.10 currently doesn't install in debian jessie due to libpeg8 being removed.
+MAINTAINER Jonathan Kovacs <jdk@jdk.ca>
 
-RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \
-  && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC \
-  && echo "deb http://apt.sonarr.tv/ master main" | tee -a /etc/apt/sources.list \
-  && apt-get update -q \
-  && apt-get install -qy nzbdrone mediainfo \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC
 
-RUN chown -R nobody:users /opt/NzbDrone \
-  ; mkdir -p /volumes/config/sonarr /volumes/completed /volumes/media \
-  && chown -R nobody:users /volumes
+RUN echo "deb http://apt.sonarr.tv/ master main" > sudo tee /etc/apt/sources.list.d/sonarr.list \
+	&& apt-get update \
+	&& apt-get install mediainfo nzbdrone \
+	&& apt-get clean \
+	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-EXPOSE 8989
-EXPOSE 9898
+RUN for i in /usr/lib/mono/*/mscorlib.dll; do mono --aot $i; done \ 
+	&& for i in /usr/lib/mono/gac/*/*/*.dll; do mono --aot $i; done \
+	&& mono --aot /opt/NzbDrone/NzbDrone.exe \
+	&& for i in /opt/NzbDrone/*.dll; do mono --aot $i; done
+
+RUN mkdir -p /volumes/config/sonarr \
+	&& /volumes/completed \
+	&& /volumes/media
+
+COPY develop/start.sh /
+RUN chmod +x /start.sh
+
+COPY develop/sonarr-update.sh /
+RUN chmod +x /sonarr-update.sh
+
+WORKDIR /opt/NzbDrone
+
+ENTRYPONT ["/start.sh"]
+
 VOLUME /volumes/config
 VOLUME /volumes/completed
 VOLUME /volumes/media
 
-ADD develop/start.sh /
-RUN chmod +x /start.sh
+EXPOSE 8989
+EXPOSE 9898
 
-ADD develop/sonarr-update.sh /sonarr-update.sh
-RUN chmod 755 /sonarr-update.sh \
-  && chown nobody:users /sonarr-update.sh
-
-USER nobody
-WORKDIR /opt/NzbDrone
-
-ENTRYPOINT ["/start.sh"]
