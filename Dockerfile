@@ -14,8 +14,8 @@ RUN mono --aot /opt/NzbDrone/NzbDrone.exe \
 	&& for i in /opt/NzbDrone/*.dll; do mono --aot $i; done
 
 RUN chown -R nobody /opt/NzbDrone \
-	&& mkdir -p /volumes/config/sonarr /volumes/completed /volumes/media \
-	&& chown -R nobody /volumes
+	&& mkdir -p /data/config/sonarr /data/completed /data/media \
+	&& chown -R nobody /data
 
 COPY develop/start.sh /
 RUN chmod +x /start.sh
@@ -28,9 +28,9 @@ WORKDIR /opt/NzbDrone
 
 ENTRYPOINT ["/start.sh"]
 
-VOLUME /volumes/config
-VOLUME /volumes/completed
-VOLUME /volumes/media
+VOLUME /data/config
+VOLUME /data/completed
+VOLUME /data/media
 
 EXPOSE 8989
 EXPOSE 9898
