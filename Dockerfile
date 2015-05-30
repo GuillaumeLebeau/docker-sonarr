@@ -1,23 +1,21 @@
-FROM mono:3.10
+FROM debian:wheezy
 
 MAINTAINER Jonathan Kovacs <jdk@jdk.ca>
 
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC
 
-RUN echo "deb http://apt.sonarr.tv/ master main" > sudo tee /etc/apt/sources.list.d/sonarr.list \
+RUN echo "deb http://apt.sonarr.tv/ master main" > /etc/apt/sources.list.d/sonarr.list \
 	&& apt-get update \
-	&& apt-get install mediainfo nzbdrone \
+	&& apt-get install -y mediainfo nzbdrone \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN for i in /usr/lib/mono/*/mscorlib.dll; do mono --aot $i; done \ 
-	&& for i in /usr/lib/mono/gac/*/*/*.dll; do mono --aot $i; done \
-	&& mono --aot /opt/NzbDrone/NzbDrone.exe \
+RUN mono --aot /opt/NzbDrone/NzbDrone.exe \
 	&& for i in /opt/NzbDrone/*.dll; do mono --aot $i; done
 
-RUN mkdir -p /volumes/config/sonarr \
-	&& /volumes/completed \
-	&& /volumes/media
+RUN chown -R nobody /opt/NzbDrone \
+	&& mkdir -p /volumes/config/sonarr /volumes/completed /volumes/media \
+	&& chown -R nobody /volumes
 
 COPY develop/start.sh /
 RUN chmod +x /start.sh
@@ -25,9 +23,10 @@ RUN chmod +x /start.sh
 COPY develop/sonarr-update.sh /
 RUN chmod +x /sonarr-update.sh
 
+USER nobody
 WORKDIR /opt/NzbDrone
 
-ENTRYPONT ["/start.sh"]
+ENTRYPOINT ["/start.sh"]
 
 VOLUME /volumes/config
 VOLUME /volumes/completed
