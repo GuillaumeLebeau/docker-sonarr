@@ -7,15 +7,15 @@
 - **TCP 8989** - Web Interface
 
 ### Volumes
-- **/volumes/config** - Sonarr configuration data
-- **/volumes/completed** - Completed downloads from download client
-- **/volumes/media** - Sonarr media folder
+- **/data/config** - Sonarr configuration data
+- **/data/completed** - Completed downloads from download client
+- **/data/media** - Sonarr media folder
 
 ## Running
 
 The quickest way to get it running without integrating with a download client or media server (plex)
 ```
-sudo docker run --restart always --name sonarr -p 8989:8989 -v /path/to/your/media/folder/:/volumes/media -v /path/to/your/completed/downloads:/volumes/completed jkovacs/sonarr
+sudo docker run -d --restart always --name sonarr -p 8989:8989 -v /path/to/your/media/folder/:/data/media -v /path/to/your/completed/downloads:/data/completed -v /path/to/your/config:/data/config jkovacs/sonarr
 ```
 
 ## Updating
