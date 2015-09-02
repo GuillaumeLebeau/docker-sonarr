@@ -1,6 +1,6 @@
-FROM debian:wheezy
+FROM mono:4.0.1
 
-MAINTAINER Jonathan Kovacs <jdk@jdk.ca>
+MAINTAINER guillaumegl <guillaume.lebeau@outlook.com>
 
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC
 
@@ -14,7 +14,7 @@ RUN mono --aot /opt/NzbDrone/NzbDrone.exe \
 	&& for i in /opt/NzbDrone/*.dll; do mono --aot $i; done
 
 RUN chown -R nobody /opt/NzbDrone \
-	&& mkdir -p /data/config/sonarr /data/completed /data/media \
+	&& mkdir -p /data/config/sonarr /data/torrent /data/media \
 	&& chown -R nobody /data
 
 COPY develop/start.sh /
@@ -29,7 +29,7 @@ WORKDIR /opt/NzbDrone
 ENTRYPOINT ["/start.sh"]
 
 VOLUME /data/config
-VOLUME /data/completed
+VOLUME /data/torrent
 VOLUME /data/media
 
 EXPOSE 8989

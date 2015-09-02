@@ -1,21 +1,21 @@
 # Docker Sonarr (previously NzbDrone)
 
 ### Tags
-- jkovacs/sonarr:**latest** - Installs from Sonarr master repository
+- guillaumegl/sonarr:**latest** - Installs from Sonarr master repository
 
 ### Ports
 - **TCP 8989** - Web Interface
 
 ### Volumes
 - **/data/config** - Sonarr configuration data
-- **/data/completed** - Completed downloads from download client
+- **/data/torrent** - Completed downloads from download client
 - **/data/media** - Sonarr media folder
 
 ## Running
 
 The quickest way to get it running without integrating with a download client or media server (plex)
 ```
-sudo docker run -d --restart always --name sonarr -p 8989:8989 -v /path/to/your/media/folder/:/data/media -v /path/to/your/completed/downloads:/data/completed -v /path/to/your/config:/data/config jkovacs/sonarr
+sudo docker run -d --restart always --name sonarr -p 8989:8989 -v /path/to/your/media/folder/:/data/media -v /path/to/your/completed/downloads:/data/torrent -v /path/to/your/config:/data/config guillaumegl/sonarr
 ```
 
 ## Updating
